@@ -82,9 +82,10 @@ std::set<std::string> boggle(const std::set<std::string>& dict, const std::set<s
 	{
 		for(unsigned int j=0;j<board.size();j++)
 		{
-			boggleHelper(dict, prefix, board, "", result, i, j, 0, 1);
-			boggleHelper(dict, prefix, board, "", result, i, j, 1, 0);
-			boggleHelper(dict, prefix, board, "", result, i, j, 1, 1);
+			boggleHelper(dict, prefix, board, "", result, i, j, 0, 1);  //This will go right
+			boggleHelper(dict, prefix, board, "", result, i, j, 1, 0);  //This will go down
+			boggleHelper(dict, prefix, board, "", result, i, j, 1, 1);  //This will go bottom right diagonal
+      //std::cout << "------------------------------------------------------------>" << std::endl;
 		}
 	}
 	
@@ -95,5 +96,144 @@ bool boggleHelper(const std::set<std::string>& dict, const std::set<std::string>
 								   std::string word, std::set<std::string>& result, unsigned int r, unsigned int c, int dr, int dc)
 {
 //add your solution here!
+    //You 
+    //std::cout << "BOGGLEHELPER" << std::endl;
+    //Need a way to know which direction to go depending on the dr and dc. dr and dc should remain as 0's and 1's since they are just int
+    //One Recursion will go specifically right all the way, One Recursion will go specifically down all the way, and One recursion will go specifcally right diagonal all the way. There are no in between change of directions
+    //This first recursion will go specifically right for now
+    //1) For the one that goes specifically right, then it won't go to the next row since the loops from the other function does it already
+    //2) For the one that goes specifically down, then it won't go do the next column
+    //3) For the one that goes specifically diagonal right, then it won't go to the next diagonal right that is on the right of the current diagonal right
+    //std::cout << r << " " << c << std::endl;
+    //If the word continue being made is part of a prefix, then keep recursing
+    //If the word continue being made is not part of a prefix, then return false
+//----------------------------------------------------------------> //This goes right when dr = 0 and dr = 1
 
+  if(dr == 0 && dc == 1){
+        if(c == board[r].size()){ //If the recursion reaches the end of the column
+            //std::cout << "LEFT TO RIGHT word END: " << word << std::endl;
+            //if(word.substr(0, word.size() - 1) == "AWE"){
+                    //std::cout << "THE BASE CASE WORD IS: " << word << std::endl;
+            //}
+            if(dict.find(word) != dict.end()){  //If we find the word in the dictionary
+                
+                result.insert(word);
+                //std::cout << "RETURN TRUE: " << word << std::endl;
+
+              //Maybe if dict.find(word.substr(0, word.size() - 1) != dict.end())
+                std::string lesser_string = word.substr(0, word.size() - 1);
+                if(result.find(lesser_string) != result.end()){ //Detect the one less size with prefix. Might have to do this in the main recursion other than the base case as well
+                    //std::cout << "LESSER_STRING: " << lesser_string << std::endl;
+                }
+                return true;
+            }
+            return false;
+        }else{  //Recurse left to right on the same row
+            //std::cout << "LEFT TO RIGHT: " << r << " " << c << std::endl;
+            //std::cout << "LEFT TO RIGHT word: " << word << std::endl;
+            //if(word == "AWEE"){
+                //std::cout << "LEFT TO RIGHT word: " << word << std::endl;
+            //}
+
+            
+            
+             
+            if(boggleHelper(dict, prefix, board, word + board[r][c], result, r, c + 1, dr, dc)){ //If dr is 0 and dc is 1
+                //Might have to do stuff here
+                //std::cout << "THIS IS TRUE YO: " << word << std::endl;
+                return true;
+            }else{  //If they can't find the "largest word" in the dict set in the base case, then we need to see if the word in this recursion is the "largest word"
+                  //if(){
+                 //std::cout << "THIS IS FALSE: " << word + board[r][c] << std::endl;
+                
+                 if(dict.find(word) != dict.end()){ //If we are able to find this word after the "largest word" failing, this would be the next largest word
+                    result.insert(word);
+                    return true;
+                 }
+                  //}
+            }
+
+            if(prefix.find(word) == prefix.end()){  //If we can't find a prefix, return false
+                //std::cout << "NOT PREFIX: " << word << std::endl;
+                return false;
+            }
+
+            return false;
+        }
+    }
+//----------------------------------------------------------------> //This goes down only
+  else if(dr == 1 && dc == 0){
+        if(r == board.size()){ //If the recursion reaches the the row after the last row
+            //std::cout << "UP TO DOWN word END: " << word << std::endl;
+            if(dict.find(word) != dict.end()){  //If we find the word in the dictionary
+                  result.insert(word);
+                  return true;
+              }
+            return false;
+        }else{  //Recurse up to down on the same column
+            //std::cout << "UP TO DOWN: " << r << " " << c << std::endl;
+            //std::cout << "UP TO DOWN word: " << word << std::endl;
+           
+            
+            if(boggleHelper(dict, prefix, board, word + board[r][c], result, r + 1, c, dr, dc)){ //If dr is 1 and dc is 0
+                return true;
+            }else{  //If they can't find the "largest word" in the dict set in the base case, then we need to see if the word in this recursion is the "largest word"
+                  //if(){
+                 //std::cout << "THIS IS FALSE: " << word + board[r][c] << std::endl;
+                 if(dict.find(word) != dict.end()){ //If we are able to find this word after the "largest word" failing, this would be the next largest word
+                    result.insert(word);
+                    return true;
+                 }
+                  //}
+            }
+
+            if(prefix.find(word) == prefix.end()){  //If we can't find a prefix, return false
+                //std::cout << "NOT PREFIX: " << word << std::endl;
+                return false;
+            }
+            return false;
+        }
+  }
+  //--------------------------------------------------------------> //This goes right down diagonal only
+  else if(dr == 1 && dc == 1){
+        if(r == board.size() || c == board[r].size()){  //If the recursion reaches the diagonal outside the grid
+            //std::cout << "DIAGONAL BOTTOM RIGHT TRAVEL word END: " << word << std::endl;
+            if(dict.find(word) != dict.end()){  //If we find the word in the dictionary
+                result.insert(word);
+                return true;
+            }
+            return false;
+        }else{  //Recurse from current index to the bottom right
+            //std::cout << "DIAGONAL BOTTOM RIGHT TRAVEL: " << r << " " << c << std::endl;
+            //std::cout << "DIAGONAL BOTTOM RIGHT TRAVEL word: " << word << std::endl;
+            
+            if(boggleHelper(dict, prefix, board, word + board[r][c], result, r + 1, c + 1, dr, dc)){ //If dr is 1 and dc is 1
+
+                return true;
+            }else{  //If they can't find the "largest word" in the dict set in the base case, then we need to see if the word in this recursion is the "largest word"
+                  //if(){
+                 //std::cout << "THIS IS FALSE: " << word + board[r][c] << std::endl;
+                 if(dict.find(word) != dict.end()){ //If we are able to find this word after the "largest word" failing, this would be the next largest word
+                    result.insert(word);
+                    return true;
+                 }
+                  //}
+            }
+
+            if(prefix.find(word) == prefix.end()){  //If we can't find a prefix, return false
+                //std::cout << "NOT PREFIX: " << word << std::endl;
+                return false;
+            }
+            return false;
+        }
+  }
+  
+
+  /*
+  std::set<std::string>::iterator it;
+  for(it = dict.begin(); it != dict.end(); ++it){
+      std::cout << "DICT: " << *it << std::endl;
+  }
+  */
+ // for()
 }
